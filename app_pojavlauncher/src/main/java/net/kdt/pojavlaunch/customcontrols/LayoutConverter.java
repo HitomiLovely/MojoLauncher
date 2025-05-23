@@ -10,26 +10,31 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lwjgl.glfw.CallbackBridge;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class LayoutConverter {
-    public static CustomControls loadAndConvertIfNecessary(String jsonPath) throws IOException, JsonSyntaxException {
 
-        String jsonLayoutData = Tools.read(jsonPath);
+    public static CustomControls loadAndConvertIfNecessary(String jsonPath) throws IOException, JsonSyntaxException{
+        File jsonFile = new File(jsonPath);
+        LayoutBitmaps.ControlsContainer container = LayoutBitmaps.load(jsonFile);
+        LayoutBitmaps layoutBitmaps = container.mLayoutZip;
+        CustomControls controls = internalLoad(container.mControlsJson);
+        controls.mLayoutBitmaps = layoutBitmaps;
+        return controls;
+    }
+
+    public static CustomControls internalLoad(String jsonLayoutData) throws JsonSyntaxException {
         try {
             JSONObject layoutJobj = new JSONObject(jsonLayoutData);
 
             if (!layoutJobj.has("version")) { //v1 layout
-                CustomControls layout = LayoutConverter.convertV1Layout(layoutJobj);
-                layout.save(jsonPath);
-                return layout;
+                return LayoutConverter.convertV1Layout(layoutJobj);
             } else {
                 int version = layoutJobj.getInt("version");
                 if (version == 2) {
-                    CustomControls layout = LayoutConverter.convertV2Layout(layoutJobj);
-                    layout.save(jsonPath);
-                    return layout;
+                    return LayoutConverter.convertV2Layout(layoutJobj);
                 }
                 if (version == 3 || version == 4 || version == 5) {
                     return LayoutConverter.convertV3_4Layout(layoutJobj);

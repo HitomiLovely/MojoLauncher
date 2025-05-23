@@ -5,7 +5,11 @@ import static android.view.View.VISIBLE;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_BUTTONSIZE;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,6 +24,7 @@ import net.kdt.pojavlaunch.GrabListener;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.customcontrols.ControlData;
 import net.kdt.pojavlaunch.customcontrols.ControlLayout;
+import net.kdt.pojavlaunch.customcontrols.LayoutBitmaps;
 import net.kdt.pojavlaunch.customcontrols.handleview.EditControlSideDialog;
 
 import org.lwjgl.glfw.CallbackBridge;
@@ -111,14 +116,26 @@ public interface ControlInterface extends View.OnLongClickListener, GrabListener
      * Apply the background according to properties
      */
     default void setBackground() {
-        GradientDrawable gd = getControlView().getBackground() instanceof GradientDrawable
-                ? (GradientDrawable) getControlView().getBackground()
-                : new GradientDrawable();
-        gd.setColor(getProperties().bgColor);
-        gd.setStroke((int) Tools.dpToPx(getProperties().strokeWidth * (getControlLayoutParent().getLayoutScale()/100f)), getProperties().strokeColor);
-        gd.setCornerRadius(computeCornerRadius(getProperties().cornerRadius));
+        Drawable drawable = getControlView().getBackground();
+        String bitmapTag = getProperties().bitmapTag;
+        if(Tools.isValidString(bitmapTag)) {
+            LayoutBitmaps storage = getControlLayoutParent().getBitmaps();
+            Bitmap bgBitmap = storage.getBitmap(getProperties().bitmapTag);
+            if(drawable instanceof BitmapDrawable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                ((BitmapDrawable)drawable).setBitmap(bgBitmap);
+            }else {
+                drawable = new BitmapDrawable(getControlView().getResources(), bgBitmap);
+            }
+        }else {
+            GradientDrawable gd = drawable instanceof GradientDrawable ?
+                    (GradientDrawable) drawable : new GradientDrawable();
+            gd.setColor(getProperties().bgColor);
+            gd.setStroke((int) Tools.dpToPx(getProperties().strokeWidth * (getControlLayoutParent().getLayoutScale()/100f)), getProperties().strokeColor);
+            gd.setCornerRadius(computeCornerRadius(getProperties().cornerRadius));
+            drawable = gd;
+        }
 
-        getControlView().setBackground(gd);
+        getControlView().setBackground(drawable);
     }
 
     /**

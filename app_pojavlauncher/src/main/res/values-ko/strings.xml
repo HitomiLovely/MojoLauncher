@@ -267,17 +267,12 @@
     <string name="fabric_dl_game_version">마인크래프트 버전</string>
     <string name="fabric_dl_install">설치</string>
     <string name="fabric_dl_cant_read_meta">%s 메타데이터 읽기 실패. 나중에 다시 시도하십시오.</string>
-    <string name="modloader_dl_install_fabric">Fabric 프로필 생성</string>
-    <string name="modloader_dl_install_quilt">Quilt 프로필 생성</string>
-    <string name="modloader_dl_install_forge">Forge 프로필 생성</string>
-    <string name="create_profile_vanilla">바닐라 프로필 생성</string>
     <string name="create_profile_vanilla_like_versions">바닐라와 비슷한 버전</string>
     <string name="create_profile_modded_versions">수정된 버전</string>
     <string name="fabric_dl_loader_title">버전 선택</string>
     <string name="of_dl_select_version">OptiFine 버전 선택</string>
     <string name="of_dl_failed_to_scrape">OptiFine 설치 정보 수집 실패</string>
     <string name="of_dl_progress">%s 다운로드 중</string>
-    <string name="create_profile_optifine">OptiFine 프로필 생성</string>
     <string name="hint_search_modpack">모드팩 검색</string>
     <string name="preference_vulkan_driver_system_title">시스템 Vulkan 드라이버 사용</string>
     <string name="preference_vulkan_driver_system_description">런처가 Adreno GPU에서 Turnip 대신 시스템 Vulkan 드라이버를 사용하도록 강제합니다. Vulkan을 사용하는 Zink 및 모드에서만 영향을 미칩니다.</string>
@@ -296,7 +291,6 @@
     <string name="modpack_install_notification_data_not_available">모드 로더 정보 다운로드 실패</string>
     <string name="modpack_install_modloader_download_failed">모드 로더 파일 다운로드 실패</string>
     <string name="modpack_install_download_failed">모드팩 파일 다운로드에 실패하였습니다</string>
-    <string name="modpack_install_button">모드팩 프로필 생성</string>
     <string name="notif_error_occured">오류가 발생하였습니다.</string>
     <string name="notif_error_occured_desc">클릭하여 상세 정보 보기</string>
     <string name="fabric_dl_only_stable">정식 버전만 표시</string>

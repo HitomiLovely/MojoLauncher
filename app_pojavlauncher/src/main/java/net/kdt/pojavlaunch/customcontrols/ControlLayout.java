@@ -598,4 +598,8 @@ public class ControlLayout extends FrameLayout {
 	public boolean areControlVisible(){
 		return mControlVisible;
 	}
+
+	public LayoutBitmaps getBitmaps() {
+		return mLayout.mLayoutBitmaps;
+	}
 }

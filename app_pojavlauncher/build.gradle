@@ -81,6 +81,19 @@ android {
         resValue 'string', 'curseforge_api_key', getCFApiKey()
     }
 
+    flavorDimensions "runtime"
+    
+    productFlavors {
+        full {
+            dimension "runtime"
+        }
+        
+        noruntime {
+            dimension "runtime"
+            versionNameSuffix "-noruntime"
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix '.debug'
@@ -157,22 +170,25 @@ class AssetTaskRegistrar {
     private File targetAssetsDir
     private String variantName
     private File targetDownloadDir
+    private File projectJarDir
 
     AssetTaskRegistrar(Project project) {
         this.project = project
 
         targetDownloadDir = new File(project.projectDir, "build/intermediates/download_deps")
-        targetAssetsDir = new File(project.projectDir, "build/intermediates/remote_asset_set")
-
-        createDirectories(targetDownloadDir)
-        createDirectories(targetAssetsDir)
-
-        project.android.sourceSets.main.assets.srcDirs += targetAssetsDir.absolutePath
+        projectJarDir = new File(project.projectDir, "build/intermediates/package_jar_deps")
+        createDirectories targetDownloadDir
+        createDirectories projectJarDir
     }
 
     def setVariant(variant) {
         variantName = variant.getName().capitalize()
         mergeAssetsTask = variant.getMergeAssetsProvider().get()
+
+        targetAssetsDir = new File(project.projectDir, "build/intermediates/remote_asset_set/${variantName.toLowerCase()}/")
+        createDirectories(targetAssetsDir)
+
+        project.android.sourceSets[variant.getName()].assets.srcDirs += targetAssetsDir.absolutePath
     }
 
     static def createDirectories(File location) {
@@ -195,13 +211,13 @@ class AssetTaskRegistrar {
         def downloadTarget = new File(targetDownloadDir, name)
 
         def dependencySuffix = "${name}${variantName}"
-        def downloadTask = project.tasks.register("download"+dependencySuffix, Download) {
+        def downloadTask = project.tasks.register("download${dependencySuffix}", Download) {
             src downloadUrl
             dest downloadTarget
             overwrite false
         };
 
-        def unzipTask = project.tasks.register("unzip"+dependencySuffix, Copy) {
+        def unzipTask = project.tasks.register("unzip${dependencySuffix}", Copy) {
             from project.zipTree(downloadTarget)
             into targetExtractionDir
             dependsOn downloadTask
@@ -210,19 +226,31 @@ class AssetTaskRegistrar {
     }
 
     def onlineZipDependency(String downloadUrl, String name, String relativePath) {
-        mergeAssetsTask.dependsOn(onlineUnzipTask downloadUrl, name, assetDestination(relativePath))
+	    mergeAssetsTask.dependsOn(onlineUnzipTask downloadUrl, name, assetDestination(relativePath))
     }
 
     def projectJarDependency(Project project, String relativePath) {
-        def targetDir = assetDestination(relativePath)
-        createDirectories targetDir
+        def assetTargetDir = assetDestination(relativePath)
+        def jarTargetDir = new File(projectJarDir, relativePath)
+        createDirectories assetTargetDir
+        createDirectories jarTargetDir
+
+        def copyTaskName = "copyProjectJar${jarTargetDir.getName()}${variantName}"
+        def copyTask = project.tasks.register(copyTaskName, Copy) {
+            from jarTargetDir
+            into assetTargetDir
+            // Nasty hack: explicitly reference project by name to force Gradle to configure it.
+            // Makes jar task search below work properly for fresh configurations.
+            dependsOn ":${project.name}:jar"
+        }
+
+        mergeAssetsTask.dependsOn copyTask;
 
         project.tasks.withType(org.gradle.jvm.tasks.Jar.class).configureEach {
-            it.destinationDirectory = targetDir
-            mergeAssetsTask.dependsOn it
+            it.destinationDirectory = jarTargetDir
             doLast {
                 if(!it.didWork) return
-                writeVersion targetDir
+                writeVersion jarTargetDir
             }
         }
     }
@@ -239,30 +267,29 @@ class AssetTaskRegistrar {
     }
 }
 
-def registrar = new AssetTaskRegistrar(project);
-
-android.applicationVariants.configureEach { variant ->
-    registrar.setVariant(variant)
-
-    registrar.projectJarDependency project(":forge_installer"), "components/forge_installer"
-    registrar.projectJarDependency project(":arc_dns_injector"), "components/arc_dns_injector"
-    registrar.projectJarDependency project(":jre_lwjgl3glfw"), "components/lwjgl3"
-
-    def jreBuildRepository = "https://nightly.link/MojoLauncher/android-openjdk-build-multiarch/workflows/build/";
-
-    registrar.onlineZipDependency jreBuildRepository+"buildjre8/jre8-pojav.zip", "ComponentRuntime8", "components/jre/"
-    registrar.onlineZipDependency jreBuildRepository+"buildjre17-21/jre17-pojav.zip", "ComponentRuntime17", "components/jre-new"
-    registrar.onlineZipDependency jreBuildRepository+"buildjre17-21/jre21-pojav.zip", "ComponentRuntime21", "components/jre-21"
-
-    def cacioBuildRepository = "https://nightly.link/MojoLauncher/%s/workflows/maven/master/caciocavallo.zip"
-
-    registrar.onlineJarDependency String.format(cacioBuildRepository, "caciocavallo"), "Caciocavallo", "components/caciocavallo"
-    registrar.onlineJarDependency String.format(cacioBuildRepository, "caciocavallo17"), "Caciocavallo17", "components/caciocavallo17"
-}
-
 afterEvaluate {
-    // Explicit dependencies for which the apk relies on
-    tasks.mergeDebugAssets.dependsOn(":forge_installer:jar", ":arc_dns_injector:jar", ":jre_lwjgl3glfw:jar")
+    def registrar = new AssetTaskRegistrar(project);
+
+    android.applicationVariants.configureEach { variant ->
+        registrar.setVariant(variant)
+
+        registrar.projectJarDependency project(":forge_installer"), "components/forge_installer"
+        registrar.projectJarDependency project(":arc_dns_injector"), "components/arc_dns_injector"
+        registrar.projectJarDependency project(":jre_lwjgl3glfw"), "components/lwjgl3"
+
+		if (variant.getName().toLowerCase().contains("full")) {
+        	def jreBuildRepository = "https://nightly.link/MojoLauncher/android-openjdk-build-multiarch/workflows/build";
+
+			registrar.onlineZipDependency "${jreBuildRepository}/buildjre8/jre8-pojav.zip", "ComponentRuntime8", "components/jre/"
+        	registrar.onlineZipDependency "${jreBuildRepository}/buildjre17-21/jre17-pojav.zip", "ComponentRuntime17", "components/jre-new"
+        	registrar.onlineZipDependency "${jreBuildRepository}/buildjre17-21/jre21-pojav.zip", "ComponentRuntime21", "components/jre-21"
+        }
+        
+		def cacioBuildRepository = "https://nightly.link/MojoLauncher/%s/workflows/maven/master/caciocavallo.zip"
+
+        registrar.onlineJarDependency String.format(cacioBuildRepository, "caciocavallo"), "Caciocavallo", "components/caciocavallo"
+        registrar.onlineJarDependency String.format(cacioBuildRepository, "caciocavallo17"), "Caciocavallo17", "components/caciocavallo17"
+    }
 }
 
 dependencies {

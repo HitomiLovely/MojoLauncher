@@ -5,9 +5,11 @@ import static org.lwjgl.glfw.CallbackBridge.sendKeyPress;
 import static org.lwjgl.glfw.CallbackBridge.sendMouseButton;
 
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -18,12 +20,17 @@ import android.widget.TextView;
 import net.kdt.pojavlaunch.LwjglGlfwKeycode;
 import net.kdt.pojavlaunch.MainActivity;
 import git.artdeell.mojo.R;
+
+import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.customcontrols.ControlData;
 import net.kdt.pojavlaunch.customcontrols.ControlLayout;
 import net.kdt.pojavlaunch.customcontrols.handleview.EditControlSideDialog;
 import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 
 import org.lwjgl.glfw.CallbackBridge;
+
+import static net.kdt.pojavlaunch.customcontrols.buttons.BackgroundTint.DEFAULT_TINT_LIST;
+import static net.kdt.pojavlaunch.customcontrols.buttons.BackgroundTint.TOGGLE_TINT_LIST;
 
 @SuppressLint({"ViewConstructor", "AppCompatCustomView"})
 public class ControlButton extends TextView implements ControlInterface {
@@ -33,6 +40,7 @@ public class ControlButton extends TextView implements ControlInterface {
 
     /* Cache value from the ControlData radius for drawing purposes */
     private float mComputedRadius;
+    private boolean mHasBitmap;
 
     protected boolean mIsToggled = false;
     protected boolean mIsPointerOutOfBounds = false;
@@ -62,21 +70,36 @@ public class ControlButton extends TextView implements ControlInterface {
         return mProperties;
     }
 
-    public void setProperties(ControlData properties, boolean changePos) {
-        mProperties = properties;
-        ControlInterface.super.setProperties(properties, changePos);
-        mComputedRadius = ControlInterface.super.computeCornerRadius(mProperties.cornerRadius);
+    private void setupBitmapTint() {
+        BackgroundTint.applyToggleTint(getContext());
+        ColorStateList tintStateList = mProperties.isToggle ? TOGGLE_TINT_LIST : DEFAULT_TINT_LIST;
+        setBackgroundTintList(tintStateList);
+        setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
+    }
 
+    private void setupNormalTint() {
+        mComputedRadius = ControlInterface.super.computeCornerRadius(mProperties.cornerRadius);
+        setBackgroundTintList(null);
         if (mProperties.isToggle) {
             //For the toggle layer
             final TypedValue value = new TypedValue();
             getContext().getTheme().resolveAttribute(R.attr.colorAccent, value, true);
             mRectPaint.setColor(value.data);
-            mRectPaint.setAlpha(128);
+            mRectPaint.setAlpha(BackgroundTint.BACKGROUND_TOGGLE_TINT_ALPHA);
         } else {
             mRectPaint.setColor(Color.WHITE);
-            mRectPaint.setAlpha(60);
+            mRectPaint.setAlpha(BackgroundTint.BACKGROUND_DEFAULT_TINT_ALPHA);
         }
+    }
+
+    public void setProperties(ControlData properties, boolean changePos) {
+        mProperties = properties;
+        ControlInterface.super.setProperties(properties, changePos);
+
+        mHasBitmap = Tools.isValidString(mProperties.bitmapTag);
+
+        if(mHasBitmap) setupBitmapTint();
+        else setupNormalTint();
 
         setText(properties.name);
     }
@@ -84,10 +107,16 @@ public class ControlButton extends TextView implements ControlInterface {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mIsToggled || (!mProperties.isToggle && isActivated()))
-            canvas.drawRoundRect(0, 0, getWidth(), getHeight(), mComputedRadius, mComputedRadius, mRectPaint);
+        // Bitmap uses a tint list, so don't do any custom rendering
+        if(mHasBitmap || !isActivated()) return;
+        canvas.drawRoundRect(0, 0, getWidth(), getHeight(), mComputedRadius, mComputedRadius, mRectPaint);
     }
 
+    @Override
+    public boolean isActivated() {
+        // Any possible side effects?
+        return super.isActivated() || (mProperties.isToggle && mIsToggled);
+    }
 
     public void loadEditValues(EditControlSideDialog editControlPopup){
         editControlPopup.loadValues(getProperties());

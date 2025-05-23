@@ -269,17 +269,12 @@
     <string name="fabric_dl_game_version">إصدار Minecraft</string>
     <string name="fabric_dl_install">تثبيت</string>
     <string name="fabric_dl_cant_read_meta">فشل قراءة البيانات التعريفية ل%s. الرجاء المحاولة في وقت لاحق.</string>
-    <string name="modloader_dl_install_fabric">إنشاء ملف شخصي جديد لFabric</string>
-    <string name="modloader_dl_install_quilt">إنشاء ملف شخصي جديد لQuilt</string>
-    <string name="modloader_dl_install_forge">إنشاء ملف شخصي جديد لForge</string>
-    <string name="create_profile_vanilla">إنشاء ملف شخصي جديد لVanilla</string>
     <string name="create_profile_vanilla_like_versions">الإصدارات الشبيهة بالVanilla</string>
     <string name="create_profile_modded_versions">الإصدارات المعدلة</string>
     <string name="fabric_dl_loader_title">حدد إصدارات</string>
     <string name="of_dl_select_version">حدد إصدار OptiFine</string>
     <string name="of_dl_failed_to_scrape">فشل في جمع البيانات لتثبيت OptiFine</string>
     <string name="of_dl_progress">التحميل جارٍ %s</string>
-    <string name="create_profile_optifine">إنشاء ملف شخصي لـ OptiFine</string>
     <string name="hint_search_modpack">البحث عن modpack</string>
     <string name="preference_vulkan_driver_system_title">استخدم Vulkan driver الخاص بالنظام</string>
     <string name="preference_vulkan_driver_system_description">اجبر البرنامج على استخدام Vulkan driver الخاص بالنظام بدلاً من Turnip على Adreno GPUs، فقط يؤثر بZink و المودات المستخدمة ل Vulkan.</string>
@@ -298,7 +293,6 @@
     <string name="modpack_install_notification_data_not_available">Не удалось загрузить информацию о загрузчике модов</string>
     <string name="modpack_install_modloader_download_failed">فشل تنزيل ملفات محمل المودات</string>
     <string name="modpack_install_download_failed">فشل تنزيل ملفات المودباك</string>
-    <string name="modpack_install_button">إنشاء ملف شخصي جديد لModpack</string>
     <string name="notif_error_occured">لقد حدث خطأ</string>
     <string name="notif_error_occured_desc">انقر لمشاهدة المزيد من التفاصيل</string>
     <string name="fabric_dl_only_stable">اظهر الإصدارات المستقرة فقط</string>

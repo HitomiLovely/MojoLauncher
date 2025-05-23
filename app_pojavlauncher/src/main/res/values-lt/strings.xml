@@ -216,16 +216,11 @@
     <string name="forge_dl_select_version">Pasirinkite Forge versiją</string>
     <string name="fabric_dl_game_version">Minecraft versija</string>
     <string name="fabric_dl_install">Instaliuoti</string>
-    <string name="modloader_dl_install_fabric">Sukurti Fabric profilį</string>
-    <string name="modloader_dl_install_quilt">Sukurti Quilt profilį</string>
-    <string name="modloader_dl_install_forge">Sukurti Forge profilį</string>
-    <string name="create_profile_vanilla">Sukurti Vanilla profilį</string>
     <string name="create_profile_modded_versions">Modifikuotos versijos</string>
     <string name="fabric_dl_loader_title">Pasirinkti versiją</string>
     <string name="of_dl_select_version">Pasirinkti OptiFine versiją</string>
     <string name="of_dl_failed_to_scrape">Klaida surenkant informaciją Optifine instaliacijai</string>
     <string name="of_dl_progress">Atsisiunčiama %s</string>
-    <string name="create_profile_optifine">Sukurti Optifine profilį</string>
     <string name="hint_search_modpack">Ieškoti Modpacks</string>
     <string name="preference_vulkan_driver_system_title">Naudoti sistemos Vulkan driverį</string>
     <string name="generic_install">Instaliuoti</string>
@@ -238,7 +233,6 @@
     <string name="modpack_install_notification_title">Mojo Modpack diegėjas</string>
     <string name="modpack_install_notification_success">Paspausk čia norint pabaigti Modpack instaliaciją</string>
     <string name="modpack_install_notification_data_not_available">Klaida atsiunčiant modifikacijų paleidėjo informaciją</string>
-    <string name="modpack_install_button">Sukurti Modpack profilį</string>
     <string name="notif_error_occured">Įvyko klaida</string>
     <string name="notif_error_occured_desc">Spustelėkite, dėl daugiau informacijos</string>
     <string name="fabric_dl_only_stable">Rodyti tik stabilias versijas</string>

@@ -237,7 +237,6 @@
     <string name="modpack_install_notification_data_not_available">Downloaden van mod loader gegevens mislukt</string>
     <string name="modpack_install_modloader_download_failed">Downloaden van mod laader bestanden mislukt</string>
     <string name="modpack_install_download_failed">Fout bij het downloaden van modpack bestanden</string>
-    <string name="modpack_install_button">Maak modpack profiel aan</string>
     <string name="notif_error_occured">Er is een fout opgetreden</string>
     <string name="notif_error_occured_desc">Klik voor meer details</string>
     <string name="fabric_dl_only_stable">Toon alleen stabiele versies</string>
